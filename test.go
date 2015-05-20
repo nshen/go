@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 )
 
 func goTest() {
@@ -11,6 +12,13 @@ func goTest() {
 	//	testInterface()
 	expandSlice() //slice内存分配的一个坑
 	sliceShrink() //收缩slice
+}
+
+//锁
+func callLocked(lock *sync.Mutex, f func()) {
+	lock.Lock()
+	defer lock.Unlock()
+	f()
 }
 
 func expandSlice() {

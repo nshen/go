@@ -121,7 +121,7 @@ func testRefTypes() {
 
 	//--------------------
 	//map
-	// 用make声明 monthdays := make(map[string] int)
+	// 用make声明, monthdays := make(map[string] int)
 	// m := make(map[string]int, 1000) //事先申请大块内存
 
 	monthdays := map[string]int{
@@ -144,6 +144,13 @@ func testRefTypes() {
 	fmt.Println("查询map: ", ok)
 	//删除
 	delete(monthdays, "Mar")
+
+	type Any interface{} // 任意类型的key
+	anyKeyMap := make(map[Any]int)
+	anyKeyMap[12] = 12
+	anyKeyMap["12"] = 13
+	anyKeyMap[12.0] = 14
+	fmt.Println(anyKeyMap[12], anyKeyMap["12"], anyKeyMap[12.0])
 	//---------
 
 }
@@ -181,6 +188,7 @@ func testInterface() {
 	case nil: // o == nil
 		fmt.Println("nil")
 	case fmt.Stringer: // interface
+
 		fmt.Println("fmt.Stringer", v)
 	case *User: // *struct
 		fmt.Printf("%d, %s\n", v.id, v.name)
