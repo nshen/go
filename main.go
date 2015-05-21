@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	panicTest()
+	goroutineTest()
+	//	panicTest() //错误处理
 	//  typeTest() //数据类型
 	//	goTest() //未整理
 	//	stringTest()//字符串
