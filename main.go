@@ -5,9 +5,13 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 )
 
 func main() {
+	fmt.Println("CPU核数: ", runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	goroutineTest()
 	//	panicTest() //错误处理
 	//  typeTest() //数据类型
