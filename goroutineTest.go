@@ -17,26 +17,74 @@ func goroutineTest() {
 	//	mutexTest()
 
 	//	waitGroupTest()
+	//	conditionTest()
 
 	//	selectTest() //select语句
+	//	doOnceTest() //多goroutine只执行一次
 
-	people := []string{"Anna", "Bob", "Cody", "Dave", "Eva"}
-	match := make(chan string, 1) // Make room for one unmatched send.
-	wg := new(sync.WaitGroup)
-	wg.Add(len(people))
+	//	people := []string{"Anna", "Bob", "Cody", "Dave", "Eva"}
+	//	match := make(chan string, 1) // Make room for one unmatched send.
+	//	wg := new(sync.WaitGroup)
+	//	wg.Add(len(people))
 
-	for _, name := range people {
-		go Seek(name, match, wg)
-	}
-	wg.Wait()
-	select {
-	case name := <-match:
-		fmt.Printf("No one received %s’s message.\n", name)
-	default:
-		// There was no pending send operation.
-	}
+	//	for _, name := range people {
+	//		go Seek(name, match, wg)
+	//	}
+	//	wg.Wait()
+	//	select {
+	//	case name := <-match:
+	//		fmt.Printf("No one received %s’s message.\n", name)
+	//	default:
+	//		// There was no pending send operation.
+	//	}
 
 	time.Sleep(10 * time.Second) //main goroutine等待10秒后结束
+}
+
+//TODO: 寻找更好的例子
+func conditionTest() {
+	m := make(map[int]string)
+	m[2] = "First Value"
+	var mutex sync.Mutex
+	cv := sync.NewCond(&mutex)
+
+	updateCompleted := false
+	go func() {
+		cv.L.Lock()
+		m[2] = "Second Value"
+		updateCompleted = true
+		cv.Signal()
+		cv.L.Unlock()
+	}()
+	cv.L.Lock()
+	for !updateCompleted {
+		fmt.Println("for")
+		cv.Wait()
+		fmt.Println("for2")
+	}
+	v := m[2]
+	cv.L.Unlock()
+	fmt.Printf(v)
+}
+
+func doOnceTest() {
+	var once sync.Once
+	done := make(chan bool)
+
+	someFunc := func() {
+		fmt.Println("do some func")
+	}
+	for i := 0; i < 10; i++ {
+		go func() {
+			//someFunc() //直接调用
+			once.Do(someFunc)
+			done <- true
+		}()
+	}
+
+	for i := 0; i < 10; i++ {
+		<-done
+	}
 }
 
 // Seek either sends or receives, whichever possible, a name on the match
@@ -98,7 +146,7 @@ func waitGroupTest() {
 			wg.Done()
 		}(i)
 	}
-	wg.Wait()
+	wg.Wait() //只有wg所有都done了,才往下执行
 	fmt.Println("\nwg all done")
 }
 

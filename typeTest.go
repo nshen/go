@@ -8,7 +8,7 @@ import (
 )
 
 func typeTest() {
-	fmt.Println("#### TYPE -- typeTest.go ####")
+	newDivider("typeTest.go")
 	testTypes()    //值类型
 	testRefTypes() //引用类型
 	testInterface()

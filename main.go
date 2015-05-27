@@ -12,7 +12,9 @@ func main() {
 	fmt.Println("CPU核数: ", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	goroutineTest()
+	fileTest()
+	//	timeTest()
+	//	goroutineTest()
 	//	panicTest() //错误处理
 	//  typeTest() //数据类型
 	//	goTest() //未整理
