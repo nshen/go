@@ -14,6 +14,7 @@ func goroutineTest() {
 	//	setTimeoutTest() //5秒后调用函数
 	//	dataRace()
 	//	channelTest()
+	//	chanDirectionTest() //只进只出的channel
 	//	mutexTest()
 
 	//	waitGroupTest()
@@ -23,7 +24,7 @@ func goroutineTest() {
 	//	selectTimeout() //select实现timeout
 	//	doOnceTest() //多goroutine只执行一次
 
-	//	chanDirectionTest()
+	workerPool()
 
 	//	people := []string{"Anna", "Bob", "Cody", "Dave", "Eva"}
 	//	match := make(chan string, 1) // Make room for one unmatched send.
@@ -42,6 +43,43 @@ func goroutineTest() {
 	//	}
 
 	time.Sleep(10 * time.Second) //main goroutine等待10秒后结束
+}
+
+func workerPool() {
+
+	/*
+			用3个gorutine去执行9个任务
+
+		 		----jobs-------    g1
+		main 	 				   g2
+				----results----	   g3
+
+	*/
+
+	jobs := make(chan int, 100)
+	results := make(chan int, 100)
+
+	for g := 0; g < 3; g++ { //开3个goroutine
+		go func(id int, jobChan <-chan int, resultChan chan<- int) {
+			for j := range jobChan { //用for range遍历channel,channel必须close
+				time.Sleep(time.Second) //模拟复杂任务,执行1秒
+				resultChan <- j * 2
+			}
+		}(g, jobs, results)
+	}
+
+	t1 := time.Now() //计时开始
+
+	for i := 0; i < 9; i++ {
+		jobs <- i
+	}
+	close(jobs) //不关闭会死锁
+
+	for j := 0; j < 9; j++ {
+		fmt.Println(j, <-results)
+	}
+
+	fmt.Println("jobs done ", time.Now().Sub(t1)) // 9个1秒任务,用3个worker同时执行,共用3秒
 }
 
 func chanDirectionTest() {
@@ -154,7 +192,10 @@ func selectTimeout() {
 		fmt.Println("result 2")
 	case <-time.After(2 * time.Second):
 		fmt.Println("result 2 timeout")
+		//	default:
+		//		fmt.Println("default可以实现非阻塞立即执行")
 	}
+
 }
 
 // RandomBits returns a channel that produces a random sequence of bits.
@@ -220,18 +261,23 @@ func channelTest() {
 		close(ch)
 	}()
 
-	fmt.Println(<-ch) // "Hello!"
-	fmt.Println(<-ch) // ""  关闭的channel会读出zero value
-	fmt.Println(<-ch) // ""
-	fmt.Println(<-ch) // ""
-	v, ok := <-ch
+	fmt.Println(<-ch)  // "Hello!"
+	fmt.Println(<-ch)  // ""  关闭的channel会读出zero value
+	fmt.Println(<-ch)  // ""
+	fmt.Println(<-ch)  // ""
+	v, ok := <-ch      //ok会指示是否还有值
 	fmt.Println(v, ok) // "" false
 
 	//---------------------
 	//遍历 channel
-	ch2 := Producer()
+	ch2 := make(chan string)
+	go func() {
+		ch2 <- "我的名字呀,"
+		ch2 <- "叫N神~"
+		close(ch2)
+	}()
 	for s := range ch2 {
-		fmt.Println("aaa", s)
+		fmt.Println("aaa", s) //由于关闭了ch2,所以这里会执行2次,不然会在第3次执行时阻塞
 	}
 }
 
@@ -272,16 +318,6 @@ func dataRace() {
 
 	fmt.Println("now n:", n)
 	//此时由于两个goroutine都对n进行了读写,造成data race,所以此时不能确定n的值是几
-}
-
-func Producer() <-chan string {
-	ch := make(chan string)
-	go func() {
-		ch <- "我的名字呀,"
-		ch <- "叫N神~"
-		close(ch)
-	}()
-	return ch
 }
 
 func setTimeout(f func(), delay time.Duration) {
