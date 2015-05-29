@@ -20,7 +20,10 @@ func goroutineTest() {
 	//	conditionTest()
 
 	//	selectTest() //select语句
+	//	selectTimeout() //select实现timeout
 	//	doOnceTest() //多goroutine只执行一次
+
+	//	chanDirectionTest()
 
 	//	people := []string{"Anna", "Bob", "Cody", "Dave", "Eva"}
 	//	match := make(chan string, 1) // Make room for one unmatched send.
@@ -39,6 +42,25 @@ func goroutineTest() {
 	//	}
 
 	time.Sleep(10 * time.Second) //main goroutine等待10秒后结束
+}
+
+func chanDirectionTest() {
+	pings := make(chan string, 1)
+	pongs := make(chan string, 1)
+
+	ping(pings, "passed message")
+	pong(pings, pongs)
+	fmt.Println(<-pongs)
+
+}
+
+func ping(pings chan<- string, msg string) {
+	//pings是只进channel
+	pings <- msg
+}
+func pong(pings <-chan string, pongs chan<- string) { //pings是只出channel
+	msg := <-pings
+	pongs <- msg
 }
 
 //TODO: 寻找更好的例子
@@ -106,6 +128,35 @@ func selectTest() {
 	}
 }
 
+func selectTimeout() {
+
+	ch1 := make(chan string)
+	go func() {
+		time.Sleep(1 * time.Second)
+		ch1 <- "result 1"
+	}()
+
+	select {
+	case <-ch1:
+		fmt.Println("result1")
+	case <-time.After(2 * time.Second):
+		fmt.Println("result1 timeout")
+	}
+	fmt.Println("---")
+	ch2 := make(chan string)
+
+	go func() {
+		time.Sleep(3 * time.Second)
+		ch2 <- "result 2"
+	}()
+	select {
+	case <-ch2:
+		fmt.Println("result 2")
+	case <-time.After(2 * time.Second):
+		fmt.Println("result 2 timeout")
+	}
+}
+
 // RandomBits returns a channel that produces a random sequence of bits.
 //--------------------------------------
 // select 语句
@@ -115,15 +166,6 @@ func selectTest() {
 //	如果多个case是ready的，那么随机找1个并执行该block
 //	如果都没有ready，那么就block and wait
 //	如果有default block，而且其他的case都没有ready，就执行该default block
-//---------------------------------------
-//  用select实现超时
-//
-//select {
-//case news := <-NewsAgency:
-//    fmt.Println(news)
-//case <-time.After(time.Minute):
-//    fmt.Println("Time out: no news in one minute.")
-//}
 //----------------------------------------------
 func RandomBits() <-chan int {
 	ch := make(chan int)
