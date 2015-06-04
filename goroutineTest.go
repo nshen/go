@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -11,20 +13,23 @@ func goroutineTest() {
 	newDivider("goroutineTest.go")
 
 	//	goOrderTest() //goroutine执行顺序
-	//	setTimeoutTest() //5秒后调用函数
 	//	dataRace()
+	//	atomicTest() //原子操作
+	//	mutexTest() //原子锁
+	testme()
+	//	setTimeoutTest() //用goroutine实现n秒后调用函数
+
 	//	channelTest()
 	//	chanDirectionTest() //只进只出的channel
-	//	mutexTest()
 
-	//	waitGroupTest()
+	//	waitGroupTest() //group中全部执行完,再继续
 	//	conditionTest()
 
 	//	selectTest() //select语句
 	//	selectTimeout() //select实现timeout
 	//	doOnceTest() //多goroutine只执行一次
 
-	workerPool()
+	//	workerPool()
 
 	//	people := []string{"Anna", "Bob", "Cody", "Dave", "Eva"}
 	//	match := make(chan string, 1) // Make room for one unmatched send.
@@ -39,10 +44,100 @@ func goroutineTest() {
 	//	case name := <-match:
 	//		fmt.Printf("No one received %s’s message.\n", name)
 	//	default:
-	//		// There was no pending send operation.
+	//		// There  was no pending send operation.
 	//	}
 
 	time.Sleep(10 * time.Second) //main goroutine等待10秒后结束
+}
+
+func testme() {
+	//顺序执行
+
+	myfunc := func(obj interface{}) {
+		fmt.Println("顺序执行 ", obj)
+	}
+	myfuncChan := make(chan interface{})
+	//	outchan := make(chan interface{})
+
+	go func() {
+		for {
+			myi := <-myfuncChan
+			myfunc(myi)
+		}
+	}()
+
+	for i := 0; i < 100; i++ {
+		go func(myi int) {
+			myfuncChan <- myi
+			runtime.Gosched()
+		}(i)
+	}
+
+	for j := 200; j < 300; j++ {
+		go func(myj int) {
+			myfuncChan <- myj
+			runtime.Gosched()
+		}(j)
+	}
+
+}
+
+//多个goroutine执行顺序是不确定的
+func goOrderTest() {
+	i := 1 //i被若干goroutine同时访问
+
+	go fmt.Println("from g1: i = ", i)
+	go func() {
+		fmt.Println("from g2: i = ", i)
+	}()
+
+	fmt.Println("from main goroutine: i = ", i)
+	i++
+}
+
+/*
+   data race
+
+   多个goroutine读写共享内存数据的时候会出现这种情况,应用锁或channel解决
+
+   名言:Don’t communicate by sharing memory; share memory by communicating
+   http://tip.golang.org/doc/articles/race_detector.html
+*/
+func dataRace() {
+	wait := make(chan struct{})
+	n := 0
+	go func() {
+		n++ // one access:read ,increment,write
+		close(wait)
+	}()
+	n++    //another conflicting access
+	<-wait //等待goroutine执行完毕
+
+	fmt.Println("now n:", n)
+	//此时由于两个goroutine都对n进行了读写,造成data race,所以此时不能确定n的值是几
+}
+
+func atomicTest() {
+
+	var ops uint64 = 0
+
+	for i := 0; i < 50; i++ { // 50个goroutine同时for 1秒钟可以加多少个1
+		go func() {
+			for { //如果不加for,一定是50次
+				atomic.AddUint64(&ops, 1)
+
+				runtime.Gosched() // 出让cpu
+			}
+
+		}()
+
+	}
+
+	time.Sleep(time.Second)
+
+	opsFinal := atomic.LoadUint64(&ops)
+	fmt.Println("ops: ", opsFinal)
+
 }
 
 func workerPool() {
@@ -281,45 +376,12 @@ func channelTest() {
 	}
 }
 
-//多个goroutine执行顺序是不确定的
-func goOrderTest() {
-	i := 1 //i被若干goroutine同时访问
-	go fmt.Println("from g1: i = ", i)
-	go func() {
-		fmt.Println("from g2: i = ", i)
-	}()
-	fmt.Println("from main goroutine: i = ", i)
-	i++
-}
-
 func setTimeoutTest() {
-	//-----------------------
 	//5秒后执行
 	setTimeout(func() { fmt.Println("setTimeout") }, time.Second*5)
 }
 
-/*
-   data race
-
-   多个goroutine读写共享内存数据的时候会出现这种情况,应用锁或channel解决
-
-   名言:Don’t communicate by sharing memory; share memory by communicating
-   http://tip.golang.org/doc/articles/race_detector.html
-*/
-func dataRace() {
-	wait := make(chan struct{})
-	n := 0
-	go func() {
-		n++ // one access:read ,increment,write
-		close(wait)
-	}()
-	n++    //another conflicting access
-	<-wait //等待goroutine执行完毕
-
-	fmt.Println("now n:", n)
-	//此时由于两个goroutine都对n进行了读写,造成data race,所以此时不能确定n的值是几
-}
-
+//更好的实现方式要看 timeTest.go
 func setTimeout(f func(), delay time.Duration) {
 	go func() {
 		time.Sleep(delay)
