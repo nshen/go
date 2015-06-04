@@ -12,6 +12,16 @@ func goTest() {
 	//	testInterface()
 	expandSlice() //slice内存分配的一个坑
 	sliceShrink() //收缩slice
+
+	a := "Golang!"
+	b := "Hello,"
+
+	a, b = swap(a, b) //多返回值
+	fmt.Println(a, b)
+}
+
+func swap(a string, b string) (string, string) {
+	return b, a
 }
 
 //锁

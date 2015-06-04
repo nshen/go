@@ -12,7 +12,7 @@ func main() {
 	fmt.Println("CPU核数: ", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	sortTest() //排序
+	//	sortTest() //排序
 	//	ioTest()
 	//	fileTest()
 	//	timeTest()
@@ -20,10 +20,11 @@ func main() {
 	//	panicTest() //错误处理
 	//  typeTest() //数据类型
 	//	goTest() //未整理
-	//	stringTest()//字符串
+	stringTest() //字符串
 	//	netTest()//网络相关
 	//	regexpTest() //正则
 	//	dsTest() //数据结构
+	//	goTest()
 }
 
 func newDivider(str string) {
