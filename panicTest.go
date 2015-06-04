@@ -4,7 +4,19 @@ import (
 	"fmt"
 )
 
+/*
+
+    panic经常用于某函数发生错误,我们又不知道如何处理的时候,如:
+
+	_, err := os.Create("/tmp/file")
+	if err != nil {
+		panic(err)
+	}
+
+*/
+
 func panicTest() {
+
 	defer func() {
 		if x := recover(); x != nil {
 			switch x.(type) {
