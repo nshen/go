@@ -23,9 +23,10 @@ func main() {
 	//	goTest() //未整理
 	//	stringTest() //字符串
 	//	netTest()//网络相关
-	regexpTest() //正则
+	//	regexpTest() //正则
 	//	dsTest() //数据结构
 	//	goTest()
+	jsonTest()
 }
 
 func newDivider(str string) {
