@@ -16,7 +16,7 @@ func main() {
 	//	sortTest() //排序
 	//	ioTest()
 	//	fileTest()
-	//	timeTest()
+	timeTest()
 	//	goroutineTest()
 	//	panicTest() //错误处理
 	//  typeTest() //数据类型
@@ -26,7 +26,7 @@ func main() {
 	//	regexpTest() //正则
 	//	dsTest() //数据结构
 	//	goTest()
-	jsonTest()
+	//	jsonTest()
 }
 
 func newDivider(str string) {
