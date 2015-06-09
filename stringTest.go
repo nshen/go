@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -58,6 +59,7 @@ func stringTest() {
 	fmt.Println(utf8.FullRuneInString(str[:2]))
 
 	stringsPackage()
+	parseNumber()
 }
 
 //strings包 提供字符串常见函数,注意是包方法,不是string对象的方法,所以第一个参数要传进字符串
@@ -94,4 +96,25 @@ func stringsPackage() {
 
 	trimStr = "\tThis is a string \n"
 	trimStr = strings.TrimFunc(trimStr, unicode.IsSpace)
+}
+
+//strconv包提供字符串到数字的解析
+func parseNumber() {
+	f, _ := strconv.ParseFloat("1.234", 64)
+	fmt.Println(f) //1.234
+
+	i, _ := strconv.ParseInt("123", 0, 64)
+	fmt.Println(i) //123
+
+	//16进制也支持
+	//第2个参数是0,会根据前缀自动选择base,0x开头16进制,0开头8进制,否则都为10进制
+	d, _ := strconv.ParseInt("0x1c8", 0, 64)
+	fmt.Println(d) //456
+
+	u, _ := strconv.ParseUint("789", 0, 64)
+	fmt.Println(u) //789
+
+	_, e := strconv.Atoi("wat") //Atoi is shorthand for ParseInt
+	fmt.Println(e)              //strconv.ParseInt: parsing "wat": invalid syntax
+
 }
