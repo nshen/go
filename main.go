@@ -9,9 +9,23 @@ import (
 )
 
 func main() {
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		fmt.Println("OS X.")
+	case "linux":
+		fmt.Println("Linux.")
+	case "windows":
+		fmt.Println("Windows")
+	default:
+		// freebsd, openbsd,
+		// plan9...
+		fmt.Printf("%s.", os)
+	}
+
 	fmt.Println("CPU核数: ", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
+	cryptoTest()
 	//	randomTest()
 	//	printlnTest()
 	//	sortTest() //排序
@@ -22,8 +36,8 @@ func main() {
 	//	panicTest() //错误处理
 	//  typeTest() //数据类型
 	//	goTest() //未整理
-	stringTest() //字符串
-	//	netTest()//网络相关
+	//	stringTest() //字符串
+	//	netTest() //网络相关
 	//	regexpTest() //正则
 	//	dsTest() //数据结构
 	//	jsonTest()
@@ -32,4 +46,10 @@ func main() {
 
 func newDivider(str string) {
 	fmt.Println("--------------- ", str, " ---------------")
+}
+
+func checkErr(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
