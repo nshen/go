@@ -30,14 +30,14 @@ func main() {
 	//	printlnTest()
 	//	sortTest() //排序
 	//	ioTest()
-	//	fileTest()
+	fileTest()
 	//	timeTest() //时间相关
 	//	goroutineTest()
 	//	panicTest() //错误处理
 	//  typeTest() //数据类型
 	//	goTest() //未整理
 	//	stringTest() //字符串
-	netTest() //网络相关
+	//	netTest() //网络相关
 	//	regexpTest() //正则
 	//	dsTest() //数据结构
 	//	jsonTest()
