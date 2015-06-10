@@ -4,29 +4,18 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
-	"runtime"
+	"net/url"
 
 	"github.com/gorilla/websocket"
 )
 
 func netTest() {
-	fmt.Print("Go runs on ")
+	newDivider("netTest.go")
 
-	switch os := runtime.GOOS; os {
-	case "darwin":
-		fmt.Println("OS X.")
-	case "linux":
-		fmt.Println("Linux.")
-	case "windows":
-		fmt.Println("Windows")
-	default:
-		// freebsd, openbsd,
-		// plan9...
-		fmt.Printf("%s.", os)
-	}
-
-	log.Println("netTest.go")
+	parseURL()
+	return
 	//golangTest.exe -addr ":8080"
 	addr := flag.String("addr", ":8080", "The addr of the application.")
 	flag.Parse() //调用parse后才有值
@@ -68,4 +57,34 @@ func upgradeHandler(res http.ResponseWriter, req *http.Request) {
 	//	if err != nil {
 	//		log.Fatalln("upgrader error")
 	//	}
+}
+
+func parseURL() {
+	s := "postgres://user:pass@host.com:5432/pathA/pathB/pathC?k=v#f123"
+	u, err := url.Parse(s) //*url.URL
+	if err != nil {
+		panic(err)
+	}
+
+	p := fmt.Println
+
+	p(u.Scheme) //postgres
+	p(u.User)   //user:pass
+	if u.User != nil {
+		p(u.User.Username()) //user
+		pass, b := u.User.Password()
+		p(pass, b) //pass true
+	}
+
+	p(u.Host) //host.com:5432
+	host, port, _ := net.SplitHostPort(u.Host)
+	p(host) //host.com
+	p(port) //5432
+
+	p(u.Path)                          //pathA/pathB/pathC
+	p(u.Fragment)                      //f123
+	p(u.RawQuery)                      //k=v
+	m, _ := url.ParseQuery(u.RawQuery) //url.Values
+	p(m)                               //map[k:[v]]
+	p(m["k"][0])                       //v
 }
