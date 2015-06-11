@@ -15,8 +15,9 @@ func stringTest() {
 	str2 := "A " + "string"
 	fmt.Println(str1 == str2, &str1 == &str2, &str1, &str2) // true false 0xc082006960 0xc082006970 等号可以判断字符串相等,但地址不同
 
-	//遍历字符串
-	str3 := "Étoilé,我是N神" //utf-8是可变字符编码, 一个字符会有1~4个byte长, 128个ascii码都是单字节
+	str3 := "Étoilé,我是N神"         //utf-8是可变字符编码, 一个字符会有1~4个byte长, 128个ascii码都是单字节
+	fmt.Println(len([]byte("包"))) //3
+	fmt.Println(len([]rune("包"))) //1
 
 	//遍历byte,输出错误~
 	for i := 0; i < len(str3); i++ {
