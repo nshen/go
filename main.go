@@ -30,7 +30,7 @@ func main() {
 	//	printlnTest()
 	//	sortTest() //排序
 	//	ioTest()
-	fileTest()
+	//	fileTest()
 	//	timeTest() //时间相关
 	//	goroutineTest()
 	//	panicTest() //错误处理
@@ -41,6 +41,7 @@ func main() {
 	//	regexpTest() //正则
 	//	dsTest() //数据结构
 	//	jsonTest()
+	commandLineTest()
 	//	goTest()
 }
 
