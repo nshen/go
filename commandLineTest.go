@@ -11,28 +11,36 @@ import (
 func commandLineTest() {
 	newDivider("commandLineTest.go")
 
-	//	scan() //输入的字母转大写输出
+	//		scan() //输入的字母转大写输出
 	commandArgs()
-
 	flagTest()
 }
 
+//go-experiments.exe -numb=123 -fork=true -name="nshen" -svar=a b c d
+//输出
+//numb: 123
+//fork: true
+//name: nshen
+//svar: a
+//tail: [b c d]
 func flagTest() {
-	wordPtr := flag.String("name", "value", "usage")
-	numbPtr := flag.Int("numb", 42, "an int")
+	numbPtr := flag.Int("numb", 42, "an int") //名字,默认值,描述
 	boolPtr := flag.Bool("fork", false, "a bool")
-	var svar string
-	flag.StringVar(&svar, "svar", "bar", "a string var")
+	namePtr := flag.String("name", "value", "usage")
+	var stringVar string
+	flag.StringVar(&stringVar, "svar", "bar", "a string var") //跟上边一样,但可以绑定变量
+
 	flag.Parse()
-	fmt.Println("word:", *wordPtr)
+
 	fmt.Println("numb:", *numbPtr)
 	fmt.Println("fork:", *boolPtr)
-	fmt.Println("svar:", svar)
+	fmt.Println("name:", *namePtr)
+	fmt.Println("svar:", stringVar)
 	fmt.Println("tail:", flag.Args())
 }
 
 func commandArgs() {
-	argsWithProgram := os.Args
+	argsWithProgram := os.Args //参数数组
 
 	if len(argsWithProgram) <= 1 {
 

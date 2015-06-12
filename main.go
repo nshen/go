@@ -5,7 +5,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"runtime"
+	"strings"
 )
 
 func main() {
@@ -24,6 +26,15 @@ func main() {
 
 	fmt.Println("CPU核数: ", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	//环境变量
+	for _, e := range os.Environ() {
+		pair := strings.Split(e, "=")
+		fmt.Println(pair)
+	}
+	os.Setenv("FOO", "aa1")               //不会真的改系统环境变量,临时设置?
+	fmt.Println("FOO:", os.Getenv("FOO")) //aa1
+	fmt.Println("BAR:", os.Getenv("BAR")) //
 
 	//	cryptoTest()
 	//	randomTest()
