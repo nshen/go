@@ -10,7 +10,12 @@ import (
 	"strings"
 )
 
-func main() {
+func init() {
+	fmt.Println("自动执行")
+
+}
+
+func env() {
 	switch os := runtime.GOOS; os {
 	case "darwin":
 		fmt.Println("OS X.")
@@ -35,6 +40,9 @@ func main() {
 	os.Setenv("FOO", "aa1")               //不会真的改系统环境变量,临时设置?
 	fmt.Println("FOO:", os.Getenv("FOO")) //aa1
 	fmt.Println("BAR:", os.Getenv("BAR")) //
+}
+func main() {
+	//	env()
 
 	//	cryptoTest()
 	//	randomTest()
@@ -51,8 +59,9 @@ func main() {
 	//	netTest() //网络相关
 	//	regexpTest() //正则
 	//	dsTest() //数据结构
-	//	jsonTest()
-	commandLineTest()
+	jsonTest()
+	//	xmlTest()
+	//	commandLineTest()
 	//	goTest()
 }
 
