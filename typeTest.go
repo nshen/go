@@ -54,6 +54,7 @@ func testTypes() {
 
 	var arr [5]int //这里是长度为5的int数组声明,有长度的是数组,没长度的是slice , 数组是值类型
 	//遍历数组
+
 	for i, v := range arr {
 		fmt.Println("Array element[", i, "]=", v)
 	}

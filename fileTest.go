@@ -15,10 +15,25 @@ import (
 func fileTest() {
 	newDivider("fileTest.go")
 
+	dirTest()
+
 	readFile()
 	writeFile()
 	//	pathTest()
 
+}
+
+func dirTest() {
+	os.Mkdir("nshen", 0666)
+	os.MkdirAll("nshen/test1/test2/", 0666)
+	err := os.Remove("nshen")
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = os.RemoveAll("nshen")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func writeFile() {

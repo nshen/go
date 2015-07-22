@@ -44,6 +44,17 @@ func env() {
 func main() {
 	//	env()
 
+	fmt.Println("aaaaaa")
+	mu := make(chan bool)
+	go func() {
+		<-mu
+		fmt.Println("cccccc")
+	}()
+	fmt.Println("bbbbb")
+	mu <- true
+
+	//	<-mu
+
 	//	cryptoTest()
 	//	randomTest()
 	//	printlnTest()
@@ -59,7 +70,7 @@ func main() {
 	//	netTest() //网络相关
 	//	regexpTest() //正则
 	//	dsTest() //数据结构
-	jsonTest()
+	//	jsonTest()
 	//	xmlTest()
 	//	commandLineTest()
 	//	goTest()

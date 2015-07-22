@@ -8,9 +8,66 @@ import (
 	"unicode/utf8"
 )
 
+/*
+
+In Go, a string is in effect a read-only slice of bytes
+在Go中,string只是一个高效的只读bytes的slice
+string可以存放任意bytes,跟格式无关,不必须为utf8格式
+但go的代码使用utf8,所以string literal永远是合法的utf8
+
+用index访问的是每个byte,而不是字符
+Go source code is UTF-8, so the source code for the string literal is UTF-8 text.
+a regular  will also always contain valid UTF-8.
+
+Those sequences represent Unicode code points, called runes.
+rune as an alias for the type int32
+
+只有一种情况go把字符串视为utf8的,就是 for range loop 时候
+
+*/
+const sample = "\xbd\xb2\x3d\xbc\x20\xe2\x8c\x98" // 16进制表示
+
 func stringTest() {
 	newDivider("stringTest.go")
 
+	fmt.Println("Println:")
+	fmt.Println(sample) //��=� ⌘
+
+	fmt.Println("Byte loop:")
+	for i := 0; i < len(sample); i++ {
+		fmt.Printf("%x ", sample[i]) //bd b2 3d bc 20 e2 8c 98
+	}
+	fmt.Printf("\n")
+
+	fmt.Println("Printf with %x:")
+	fmt.Printf("%x\n", sample) //bdb23dbc20e28c98
+
+	fmt.Println("Printf with % x:")
+	fmt.Printf("% x\n", sample) //bd b2 3d bc 20 e2 8c 98
+
+	fmt.Println("Printf with %q:")
+	fmt.Printf("%q\n", sample) //"\xbd\xb2=\xbc ⌘"
+
+	fmt.Println("Printf with %+q:")
+	fmt.Printf("%+q\n", sample) //"\xbd\xb2=\xbc \u2318"
+
+	const nihongo = "日本語"
+	for index, runeValue := range nihongo {
+		fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+	}
+	//U+65E5 '日' starts at byte position 0
+	//U+672C '本' starts at byte position 3
+	//U+8A9E '語' starts at byte position 6
+
+	//只有for range会视为utf8 ,其他情况就要用到标准库了,下边用到unicode.utf8库,与上边功能一致
+	for i, w := 0, 0; i < len(nihongo); i += w {
+		runeValue, width := utf8.DecodeRuneInString(nihongo[i:])
+		fmt.Printf("%#U starts at byte position %d\n", runeValue, i)
+		w = width
+	}
+	//http://golang.org/pkg/unicode/utf8/
+
+	fmt.Println("------------")
 	str1 := "A string"
 	str2 := "A " + "string"
 	fmt.Println(str1 == str2, &str1 == &str2, &str1, &str2) // true false 0xc082006960 0xc082006970 等号可以判断字符串相等,但地址不同
@@ -60,7 +117,14 @@ func stringTest() {
 	fmt.Println(utf8.FullRuneInString(str[:2]))
 
 	stringsPackage()
-	parseNumber()
+
+	//strconv包,转换类型
+	fmt.Println("-----")
+	parseTest()
+	fmt.Println("-----")
+	appendTypes()
+	fmt.Println("-----")
+	formatTest()
 }
 
 //strings包 提供字符串常见函数,注意是包方法,不是string对象的方法,所以第一个参数要传进字符串
@@ -99,8 +163,11 @@ func stringsPackage() {
 	trimStr = strings.TrimFunc(trimStr, unicode.IsSpace)
 }
 
-//strconv包提供字符串到数字的解析
-func parseNumber() {
+//Parse 系列函数把字符串转换为其他类型
+func parseTest() {
+	b, _ := strconv.ParseBool("false")
+	fmt.Println(b)
+
 	f, _ := strconv.ParseFloat("1.234", 64)
 	fmt.Println(f) //1.234
 
@@ -118,4 +185,24 @@ func parseNumber() {
 	_, e := strconv.Atoi("wat") //Atoi is shorthand for ParseInt
 	fmt.Println(e)              //strconv.ParseInt: parsing "wat": invalid syntax
 
+}
+
+//Append 系列函数将整数等转换为字符串后，添加到现有的字节数组中。
+func appendTypes() {
+	str := make([]byte, 0, 100)
+	str = strconv.AppendInt(str, 4567, 10)
+	str = strconv.AppendBool(str, false)
+	str = strconv.AppendQuote(str, "abcdefg")
+	str = strconv.AppendQuoteRune(str, '单')
+	fmt.Println(string(str))
+}
+
+//Format 系列函数把其他类型的转换为字符串
+func formatTest() {
+	a := strconv.FormatBool(false)
+	b := strconv.FormatFloat(123.23, 'g', 12, 64)
+	c := strconv.FormatInt(1234, 10)
+	d := strconv.FormatUint(12345, 10)
+	e := strconv.Itoa(1023)
+	fmt.Println(a, b, c, d, e)
 }
