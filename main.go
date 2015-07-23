@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	fmt.Println("自动执行")
+	fmt.Println("main init()")
 
 }
 
@@ -41,17 +41,20 @@ func env() {
 	fmt.Println("FOO:", os.Getenv("FOO")) //aa1
 	fmt.Println("BAR:", os.Getenv("BAR")) //
 }
+
 func main() {
+	fmt.Println("main main()")
+	mem()
 	//	env()
 
-	fmt.Println("aaaaaa")
-	mu := make(chan bool)
-	go func() {
-		<-mu
-		fmt.Println("cccccc")
-	}()
-	fmt.Println("bbbbb")
-	mu <- true
+	//	fmt.Println("aaaaaa")
+	//	mu := make(chan bool)
+	//	go func() {
+	//		<-mu
+	//		fmt.Println("cccccc")
+	//	}()
+	//	fmt.Println("bbbbb")
+	//	mu <- true
 
 	//	<-mu
 

@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+//A receive from an unbuffered channel happens before the send on that channel completes.
 func goroutineTest() {
 
 	newDivider("goroutineTest.go")
