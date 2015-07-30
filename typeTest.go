@@ -20,7 +20,7 @@ var s string = "你好世界,Hello World!"
 var i int   //int8 int16 int32 int64
 var ui uint //uint8 uint16 uint32 uint64
 //uintptr
-//byte(uint8)
+var abyte byte           // byte是uint8的别名
 var r rune = '哈'         //21704 (int32) 必须用单引号
 var f float32            //float64
 var c complex64 = 5 + 5i //复数 complex128
@@ -51,6 +51,14 @@ func testTypes() {
 	runeArr[1] = '坏'                                    //原始字符串标识的值在引号内的字符是不转义的                        //必须用单引号
 	fmt.Println(string(runeArr), string(runeArr[0]))    //32位数组
 	fmt.Printf("Value is: %v \n", c)                    //%v 按原始打印
+
+	abyte = '3'          //go的字符字面量用单引号,并且适应上下文,这里视为一个byte
+	digit := abyte - '0' //
+	//In UTF-8 (and 7-bit ASCII) 字符'0'的code point (character)十进制为 48, '3' 是code point 51, '3' - '0' 就是51− 48 结果为整数3
+	fmt.Println("digit:", digit)
+
+	var anumber uint = '4' //一个字符字面量,就是一个数字,适配任意数字类型
+	fmt.Println(anumber)   // 52 //ASCII
 
 	var arr [5]int //这里是长度为5的int数组声明,有长度的是数组,没长度的是slice , 数组是值类型
 	//遍历数组
