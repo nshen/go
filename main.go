@@ -1,6 +1,8 @@
 // main包是可独立运行的go程序，会产生可执行文件
 // 其他包名则会生成.a文件
+// 多个文件用一个package名,与都写在一个文件里没什么区别
 // 规则:大写字母开头的方法是public 小写字母开头的方法是private的
+// go build 会编译到当前目录,go install会编译到bin目录
 package main
 
 import (
@@ -44,7 +46,7 @@ func env() {
 
 func main() {
 	fmt.Println("main main()")
-	mem()
+	//	mem()
 	//	env()
 
 	//	fmt.Println("aaaaaa")
@@ -67,7 +69,7 @@ func main() {
 	//	timeTest() //时间相关
 	//	goroutineTest()
 	//	panicTest() //错误处理
-	//  typeTest() //数据类型
+	//	typeTest() //数据类型
 	//	goTest() //未整理
 	//	stringTest() //字符串
 	//	netTest() //网络相关
@@ -77,6 +79,7 @@ func main() {
 	//	xmlTest()
 	//	commandLineTest()
 	//	goTest()
+	logTest()
 }
 
 func newDivider(str string) {
