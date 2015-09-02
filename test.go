@@ -76,6 +76,8 @@ type Queue struct {
 func NewQueue() *Queue { // 创建对象实例。
 	return &Queue{make([]interface{}, 10)}
 }
+
+//If we want to modify a value we must make its receiver a pointer.★
 func (*Queue) Push(e interface{}) error { // 省略 receiver 参数名。
 	panic("not implemented")
 }

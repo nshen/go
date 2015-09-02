@@ -4,53 +4,211 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"reflect"
+	"strings"
 )
 
 func typeTest() {
 	newDivider("typeTest.go")
+
+	valueAndPointer()
 	testTypes()    //值类型
 	testRefTypes() //引用类型
 	testInterface()
 }
 
+// & is sometimes called the address of operator.
+// * is sometimes called the contents of operator or the indirection operator or the dereference operator.
+func valueAndPointer() {
+	z := 37                    // z is of type int
+	pi := &z                   // pi is of type *int (pointer to int)
+	ppi := &pi                 // ppi is of type **int (pointer to pointer to int)
+	fmt.Println(z, *pi, **ppi) //37 37 37
+	**ppi++                    // Semantically the same as: (*(*ppi))++ and *(*ppi)++
+	fmt.Println(z, *pi, **ppi) //38 38 38
+
+	//----------------------------------
+	i := 9
+	j := 5
+	product := 0
+	swapAndProduct(&i, &j, &product)
+	fmt.Println(i, j, product) //5 9 45
+
+	//----------------------------------
+	//3种方式创建User实例
+	myU := User{1, "Nshen"} // user value
+	myU1 := &myU            // pointer to user
+
+	myU2 := &User{2, "Nshen2"} // pointer to user
+
+	myU3 := new(User) // pointer to user // var myU3 *User = new(User)
+	myU3.id = 3
+	myU3.name = "Nshen3"
+
+	//--------------------
+	//new(Type) ≡ &Type{}  //两种语法等价
+	//--------------------
+
+	fmt.Println(myU)              //{1 Nshen} 只有这个是值
+	fmt.Println(myU1, myU2, myU3) //&{1 Nshen} &{2 Nshen2} &{3 Nshen3}
+
+	fmt.Println(reflect.TypeOf(myU), reflect.TypeOf(myU1), reflect.TypeOf(myU2), reflect.TypeOf(myU3)) //main.User *main.User *main.User *main.User
+
+}
+
+func swapAndProduct(x, y, product *int) {
+	*x, *y = *y, *x
+	*product = *x * *y
+}
+
+////////////////////
 //基本类型
+///////////////////////
+//go推断默认类型:整数为int,浮点数为float64,复数为complex128
+
+//-------------------
+//数字类型
+//-------------------
+
+//--------------
+//整数: 5种有符号,5种无符号,1个指针类型
+
+// 一般都用int,需要的时候再转成其他类型,  byte (uint8)常用来处理 UTF-8 encoded text
+var i int   //int8 int16 int32(rune) int64
+var ui uint //uint8(byte) uint16 uint32 uint64
+//uintptr //An unsigned integer capable of storing a pointer value (advanced)
+var abyte byte   // byte是uint8的别名
+var r rune = '哈' //21704 (int32) 必须用单引号
+
+//需要高精度必须用标准库里的
+//big.Int for integers
+//big.Rat for 有理数,可以表示三分之二,但不能表示π等
+
+//从小到大转换是安全的,但从大到小转换会得到非期望的值,所以一般会自定义转换函数
+func Uint8FromInt(x int) (uint8, error) {
+	if 0 <= x && x <= math.MaxUint8 {
+		return uint8(x), nil
+	}
+	return 0, fmt.Errorf("%d is out of the uint8 range", x)
+}
+
+//----------------
+// 浮点数:两钟浮点数,两钟复数
+
+var f float32 //float64
+
+//int(float) 浮点数转整数,浮点数部分直接丢掉
+//下边函数可以四舍五入安全转换
+func IntFromFloat64(x float64) int {
+	if math.MinInt32 <= x && x <= math.MaxInt32 {
+		whole, fraction := math.Modf(x) //整数部分,小数部分 (float64)
+		if fraction >= 0.5 {
+			whole++
+		}
+		return int(whole)
+	}
+	panic(fmt.Sprintf("%g is out of the int32 range", x))
+}
+
+//---------------
+// 复数: complex64 complex128 ,complex128最常用,应为math/cmplx都是对128操作的
+var c complex64 = 5 + 5i //复数 complex128
+func testComplex() {
+
+	var c complex64 = 5 + 5i
+	fmt.Println(c, real(c), imag(c)) //(5+5i) 5 5
+	//real ,image 对complex64操作,会得到float32 ,对complex128操作会得到float64
+
+	f := 3.2e5                       // type: float64
+	x := -7.3 - 8.9i                 // type: complex128 (literal)
+	y := complex64(-18.3 + 8.9i)     // type: complex64 (conversion)
+	z := complex(f, 13.2)            // 用complex函数构造 type: complex128 (construction)
+	fmt.Println(x, real(y), imag(z)) // Prints: (-7.3-8.9i) -18.3 13.2
+
+	//	复数其他相关的操作在math/cmplx包里
+}
+
+//--------------------------------
+
 var b bool // boolean值默认为false
 var s string = "你好世界,Hello World!"
-var i int   //int8 int16 int32 int64
-var ui uint //uint8 uint16 uint32 uint64
-//uintptr
-var abyte byte           // byte是uint8的别名
-var r rune = '哈'         //21704 (int32) 必须用单引号
-var f float32            //float64
-var c complex64 = 5 + 5i //复数 complex128
 
 //常量定义
+const limit = 512       // constant; type-compatible with any number
+const top uint16 = 1421 // constant; type: uint16
+
+//常量表达式在编译时取值
+const hlutföllum = 16.0 / 9.0                               // type: float64
+const mælikvarða = complex(-2, 3.5) * hlutföllum            // type: complex128
+const erGjaldgengur = 0.0 <= hlutföllum && hlutföllum < 2.0 // type: bool
+
 const (
 	ca = iota //0 自加常量
 	cb = iota //1
 	cc        //2
 )
 
+//iota运用在自定义类型上
+type BitFlag int
+
+func (flag BitFlag) String() string {
+	var flags []string
+	if flag&Active == Active {
+		flags = append(flags, "Active")
+	}
+	if flag&Send == Send {
+		flags = append(flags, "Send")
+	}
+	if flag&Receive == Receive {
+		flags = append(flags, "Receive")
+	}
+
+	if len(flags) > 0 { // int(flag) is vital to avoid infinite recursion!
+		return fmt.Sprintf("%d-%b(%s)", int(flag), int(flag), strings.Join(flags, "|"))
+	}
+
+	return "0()"
+}
+
+const (
+	Active  BitFlag = 1 << iota // 1 << 0 == 1
+	Send                        // Implicitly BitFlag = 1 << iota // 1 << 1 == 2
+	Receive                     // Implicitly BitFlag = 1 << iota // 1 << 2 == 4
+)
+
+//------------------------
 //结构体
 type User struct {
 	id   int
 	name string
 }
 
-func (self *User) String() string {
-	return fmt.Sprintf("%d, %s", self.id, self.name)
-}
+//func (self *User) String() string {
+//	return fmt.Sprintf("%d, %s", self.id, self.name)
+//}
 
 func testTypes() {
+
 	fmt.Println("--------------- testTypes! ----------------------")
 
 	fmt.Println(b, s, s[0], i, ui, r, f, c, ca, cb, cc) //false 你好世界,Hello World! 228 0 0 21704 0 (5+5i) 0 1 2
 	fmt.Println(0600)                                   //384 //0开头的是8进制
-	runeArr := []rune(s)                                //Rune 是 int32 的别名。用 UTF-8 进行编码。
-	runeArr[1] = '坏'                                    //原始字符串标识的值在引号内的字符是不转义的                        //必须用单引号
-	fmt.Println(string(runeArr), string(runeArr[0]))    //32位数组
-	fmt.Printf("Value is: %v \n", c)                    //%v 按原始打印
+
+	myint := 123
+	var myUint8 uint8 = 123
+	//	fmt.Println(myint + myUint) //报错,不是相通类型不能操作,比较
+	//必须转型
+	//	向上转型
+	fmt.Println(myint+int(myUint8), reflect.TypeOf(myint+int(myUint8))) //246 int
+	//  向下转型,自定义函数有些麻烦
+	myUint8FromInt, _ := Uint8FromInt(myint)
+	fmt.Println(myUint8FromInt+myUint8, reflect.TypeOf(myUint8FromInt+myUint8)) //246 uint8
+
+	runeArr := []rune(s)                             //Rune 是 int32 的别名。用 UTF-8 进行编码。
+	runeArr[1] = '坏'                                 //原始字符串标识的值在引号内的字符是不转义的                        //必须用单引号
+	fmt.Println(string(runeArr), string(runeArr[0])) //32位数组
+	fmt.Printf("Value is: %v \n", c)                 //%v 按原始打印
 
 	abyte = '3'          //go的字符字面量用单引号,并且适应上下文,这里视为一个byte
 	digit := abyte - '0' //
@@ -70,6 +228,29 @@ func testTypes() {
 	//二维数组
 	//	var matrix [4][4]float64
 
+	//二维数组
+	//	var bigDigits = [][]string{
+	//		{"  000  ",
+	//			" 0   0 ",
+	//			"0     0",
+	//			"0     0",
+	//			"0     0",
+	//			" 0   0 ",
+	//			"  000  "},
+
+	//		{" 1 ", "11 ", " 1 ", " 1 ", " 1 ", " 1 ", "111"},
+
+	//		{" 222 ", "2   2", "   2 ", "  2  ", " 2   ", "2    ", "22222"},
+	//		{" 333 ", "3   3", "    3", "  33 ", "    3", "3   3", " 333 "},
+	//		{"   4  ", "  44  ", " 4 4  ", "4  4  ", "444444", "   4  ",
+	//			"   4  "},
+	//		{"55555", "5    ", "5    ", " 555 ", "    5", "5   5", " 555 "},
+	//		{" 666 ", "6    ", "6    ", "6666 ", "6   6", "6   6", " 666 "},
+	//		{"77777", "    7", "   7 ", "  7  ", " 7   ", "7    ", "7    "},
+	//		{" 888 ", "8   8", "8   8", " 888 ", "8   8", "8   8", " 888 "},
+	//		{" 9999", "9   9", "9   9", " 9999", "    9", "    9", "    9"},
+	//	}
+
 	//编译器确定数组长度
 	//	a2 := [...]int{1, 1, 2, 3, 5}
 
@@ -79,9 +260,28 @@ func testTypes() {
 	va2[0] = 3
 	fmt.Printf("%d %d\n", va1[0], va2[0]) //1 ,3
 
+	var bp *bool = &b //指针类型,类型前面加* . 指向b
+
+	fmt.Println("指针类型:", b, *bp) //指针类型: false false  ,前面加*解引用dereferencing
+	b = true
+	fmt.Println("指针类型:", b, *bp) //指针类型: true true
+
+	var flag BitFlag = Active | Send
+	fmt.Println(flag) //3(Active|Send)
+	fmt.Println(BitFlag(0), Active, Send, flag, Receive, flag|Receive)
+
+	u1 := &User{1, "11"}
+	u2 := &User{1, "22"}
+	u3 := &User{1, "11"}
+	u4 := u1
+	fmt.Println(u1, u2, u3, u1 == u2, u1 == u3, u2 == u3, u1 == u4, u2 == u4, u3 == u4)  //1, 11 1, 22 1, 11 false false false true false false
+	fmt.Println(u1.id == u3.id, u1.name == u3.name, u1 == u3, reflect.DeepEqual(u1, u3)) //true true false true
+
+	testComplex()
+
 }
 
-//引用类型 slice map channel
+//引用类型 slice map channel ,全部用make()创建
 func testRefTypes() {
 
 	fmt.Println("--------------- testRefTypes! ----------------------")
@@ -166,19 +366,6 @@ func testRefTypes() {
 
 func testInterface() {
 	fmt.Println("--------------- testInterface! ----------------------")
-
-	//3种方式创建User实例
-	myU := User{1, "Nshen"}
-	myU1 := &myU // 指针
-
-	myU2 := &User{2, "Nshen2"}
-
-	myU3 := new(User) // var myU3 *User = new(User)
-	myU3.id = 3
-	myU3.name = "Nshen3"
-
-	fmt.Println(myU, myU1, myU2, myU3)                                                                 //{1 Nshen} 1, Nshen 2, Nshen2 3, Nshen3
-	fmt.Println(reflect.TypeOf(myU), reflect.TypeOf(myU1), reflect.TypeOf(myU2), reflect.TypeOf(myU3)) //main.User *main.User *main.User *main.User
 
 	var o interface{} = &User{1, "Tom"} //泛类型
 

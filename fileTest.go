@@ -15,11 +15,11 @@ import (
 func fileTest() {
 	newDivider("fileTest.go")
 
-	dirTest()
+	//	dirTest()
 
-	readFile()
-	writeFile()
-	//	pathTest()
+	//	readFile()
+	//	writeFile()
+	pathTest()
 
 }
 
@@ -123,6 +123,21 @@ func readFile() {
 //	for n,e := file.Read(buffer);e==nil;
 //}
 func pathTest() {
+
+	// 取当前目录
+	currentPath, currentFile := filepath.Split(os.Args[0]) //当前目录,当前文件名
+	fmt.Println(currentPath, currentFile)
+	// 读取当前目录的其他文件
+	inFilename := filepath.Join(currentPath, "README.md")
+	inFile, err := os.Open(inFilename)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer inFile.Close()
+
+	inFileBytes, _ := ioutil.ReadAll(inFile)
+	fmt.Println(string(inFileBytes))
+
 	components := []string{"a", "path", "with", "..", "relative", "elements"} //".."取消前一个目录
 	myPath := path.Join(components...)                                        //   a/path/relative/elements
 	fmt.Println("myPath:", myPath)

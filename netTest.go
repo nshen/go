@@ -55,7 +55,8 @@ func netTest() {
 	err := http.ListenAndServe(*addr, nil)
 
 	if err != nil {
-		log.Fatal("listenAndServer err")
+		log.Fatal("listenAndServer", err)
+
 	}
 }
 

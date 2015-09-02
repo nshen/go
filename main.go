@@ -13,8 +13,7 @@ import (
 )
 
 func init() {
-	fmt.Println("main init()")
-
+	//	fmt.Println("main init()")
 }
 
 func env() {
@@ -45,7 +44,19 @@ func env() {
 }
 
 func main() {
-	fmt.Println("main main()")
+	who := "World!"
+	if len(os.Args) == 1 {
+
+		fmt.Println("这是我的golang学习实验项目:)")
+		//		fmt.Println(filepath.Base(os.Args[0])) //go-experiments.exe 最后一个节点
+		//		fmt.Println(os.Args[0])                //F:\mygo\src\go-experiments\go-experiments.exe
+
+	} else if len(os.Args) > 1 { /* os.Args[0] 是 "go-experiments.exe" */
+		who = strings.Join(os.Args[1:], " ") //os.Args是个string的slice,把参数拼成字符串
+	}
+
+	fmt.Println("Hello", who)
+
 	//	mem()
 	//	env()
 
@@ -69,7 +80,7 @@ func main() {
 	//	timeTest() //时间相关
 	//	goroutineTest()
 	//	panicTest() //错误处理
-	//	typeTest() //数据类型
+	typeTest() //数据类型
 	//	goTest() //未整理
 	//	stringTest() //字符串
 	//	netTest() //网络相关
@@ -79,7 +90,7 @@ func main() {
 	//	xmlTest()
 	//	commandLineTest()
 	//	goTest()
-	logTest()
+	//	logTest()
 }
 
 func newDivider(str string) {
