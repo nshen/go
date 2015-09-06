@@ -21,6 +21,21 @@ func typeTest() {
 // & is sometimes called the address of operator.
 // * is sometimes called the contents of operator or the indirection operator or the dereference operator.
 func valueAndPointer() {
+
+	var bp *bool = &b            //指针类型,类型前面加* . 指向b
+	fmt.Println("指针类型:", b, *bp) //指针类型: false false  ,前面加*解引用dereferencing
+	b = true
+	fmt.Println("指针类型:", b, *bp) //指针类型: true true
+
+	//------------------------------
+
+	i := 1
+	i_pointer := &i //指针
+
+	fmt.Println(i, i_pointer, *i_pointer, reflect.TypeOf(i), reflect.TypeOf(i_pointer)) //1 0xc082006d90 1 int *int
+	i = 2
+	fmt.Println(i, i_pointer, *i_pointer, reflect.TypeOf(i), reflect.TypeOf(i_pointer)) //2 0xc082006d90 2 int *int
+
 	z := 37                    // z is of type int
 	pi := &z                   // pi is of type *int (pointer to int)
 	ppi := &pi                 // ppi is of type **int (pointer to pointer to int)
@@ -29,14 +44,15 @@ func valueAndPointer() {
 	fmt.Println(z, *pi, **ppi) //38 38 38
 
 	//----------------------------------
-	i := 9
-	j := 5
+	ii := 9
+	jj := 5
 	product := 0
-	swapAndProduct(&i, &j, &product)
-	fmt.Println(i, j, product) //5 9 45
+	swapAndProduct(&ii, &jj, &product)
+	fmt.Println(ii, jj, product) //5 9 45
 
 	//----------------------------------
 	//3种方式创建User实例
+	//new(Type) ≡ &Type{}  //两种语法等价
 	myU := User{1, "Nshen"} // user value
 	myU1 := &myU            // pointer to user
 
@@ -46,14 +62,25 @@ func valueAndPointer() {
 	myU3.id = 3
 	myU3.name = "Nshen3"
 
-	//--------------------
-	//new(Type) ≡ &Type{}  //两种语法等价
-	//--------------------
+	myU4 := &User{2, "Nshen2"} //与u2内容一样,注意看比较
+	fmt.Println(
+		myU2.id == myU4.id,            //true
+		myU2.name == myU4.name,        //true
+		myU2 == myU4,                  //false
+		reflect.DeepEqual(myU2, myU4)) //true
 
-	fmt.Println(myU)              //{1 Nshen} 只有这个是值
-	fmt.Println(myU1, myU2, myU3) //&{1 Nshen} &{2 Nshen2} &{3 Nshen3}
+	fmt.Println(myU)                    //{1 Nshen} 只有这个是值
+	fmt.Println(myU1, myU2, myU3, myU4) //&{1 Nshen} &{2 Nshen2} &{3 Nshen3} &{2 Nshen2}
+	fmt.Println(
+		reflect.TypeOf(myU),  //main.User
+		reflect.TypeOf(myU1), //*main.User
+		reflect.TypeOf(myU2), //*main.User
+		reflect.TypeOf(myU3), //*main.User
+		reflect.TypeOf(myU4)) //*main.User
 
-	fmt.Println(reflect.TypeOf(myU), reflect.TypeOf(myU1), reflect.TypeOf(myU2), reflect.TypeOf(myU3)) //main.User *main.User *main.User *main.User
+	var flag BitFlag = Active | Send
+	fmt.Println(flag) //3(Active|Send)
+	fmt.Println(BitFlag(0), Active, Send, flag, Receive, flag|Receive)
 
 }
 
@@ -218,9 +245,16 @@ func testTypes() {
 	var anumber uint = '4' //一个字符字面量,就是一个数字,适配任意数字类型
 	fmt.Println(anumber)   // 52 //ASCII
 
-	var arr [5]int //这里是长度为5的int数组声明,有长度的是数组,没长度的是slice , 数组是值类型
-	//遍历数组
+	//--------
+	// 数组
+	// 创建方式:
+	//	[length]Type
+	//	[N]Type{value1, value2, …, valueN}
+	//	[…]Type{value1, value2, …, valueN}	//编译器确定数组长度   //	a2 := [...]int{1, 1, 2, 3, 5}
 
+	var arr [5]int //这里是长度为5的int数组声明,有长度的是数组,没长度的是slice , 数组是值类型
+
+	//遍历数组
 	for i, v := range arr {
 		fmt.Println("Array element[", i, "]=", v)
 	}
@@ -251,48 +285,21 @@ func testTypes() {
 	//		{" 9999", "9   9", "9   9", " 9999", "    9", "    9", "    9"},
 	//	}
 
-	//编译器确定数组长度
-	//	a2 := [...]int{1, 1, 2, 3, 5}
-
 	//数组是值类型,默认会复制
 	va1 := [...]int{1, 2}
 	va2 := va1
 	va2[0] = 3
 	fmt.Printf("%d %d\n", va1[0], va2[0]) //1 ,3
 
-	var bp *bool = &b //指针类型,类型前面加* . 指向b
-
-	fmt.Println("指针类型:", b, *bp) //指针类型: false false  ,前面加*解引用dereferencing
-	b = true
-	fmt.Println("指针类型:", b, *bp) //指针类型: true true
-
-	var flag BitFlag = Active | Send
-	fmt.Println(flag) //3(Active|Send)
-	fmt.Println(BitFlag(0), Active, Send, flag, Receive, flag|Receive)
-
-	u1 := &User{1, "11"}
-	u2 := &User{1, "22"}
-	u3 := &User{1, "11"}
-	u4 := u1
-	fmt.Println(u1, u2, u3, u1 == u2, u1 == u3, u2 == u3, u1 == u4, u2 == u4, u3 == u4)  //1, 11 1, 22 1, 11 false false false true false false
-	fmt.Println(u1.id == u3.id, u1.name == u3.name, u1 == u3, reflect.DeepEqual(u1, u3)) //true true false true
-
 	testComplex()
 
 }
 
 //引用类型 slice map channel ,全部用make()创建
+//还有functions, and methods.
 func testRefTypes() {
-
+	// maps, slices, channels, functions, and methods.
 	fmt.Println("--------------- testRefTypes! ----------------------")
-
-	//	值类型也可以做为引用
-	i := 1
-	i_ref := &i
-
-	fmt.Println(i, i_ref, *i_ref, reflect.TypeOf(i), reflect.TypeOf(i_ref)) //1 0xc082006aa0 1 int *int
-	i = 2
-	fmt.Println(i, i_ref, *i_ref, reflect.TypeOf(i), reflect.TypeOf(i_ref)) //2 0xc082006aa0 2 int *int
 
 	//-------------------------
 	//slice是引用类型,多种创建方式
@@ -311,6 +318,11 @@ func testRefTypes() {
 	fmt.Println(c)                 // [0 10 0]
 	fmt.Println("len(c):", len(c)) // 3 真实长度
 	fmt.Println("cap(c):", cap(c)) // 10 分配的存储空间
+
+	//slice当作参数传递给函数,传递的是引用
+	grades := []int{87, 55, 43, 71, 60, 43, 32, 19, 63}
+	inflate(grades, 3)  //inflate函数内部修改了外部的grades
+	fmt.Println(grades) //[261 165 129 213 180 129 96 57 189]
 
 	//遍历
 	for i, v := range c {
@@ -393,5 +405,11 @@ func testInterface() {
 
 	default:
 		fmt.Println("unknown")
+	}
+}
+
+func inflate(numbers []int, factor int) {
+	for i := range numbers {
+		numbers[i] *= factor
 	}
 }
