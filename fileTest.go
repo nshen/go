@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 )
 
 //TODO ioTest与fileTest合并?
@@ -145,4 +146,35 @@ func pathTest() {
 	for _, dir := range decomposed {
 		fmt.Println(dir, string(filepath.Separator))
 	}
+
+	fmt.Println(os.Args[0], filepath.Base(os.Args[0])) //F:\mygo\src\go-experiments\go-experiments.exe go-experiments.exe
+
+	//这样测试 go-experiments.exe *.go // 输出所有.go文件
+	//还有这样子目录 go-experiments.exe */*.png
+	if len(os.Args) > 1 {
+		//test glob
+		fmt.Println(os.Args[1:]) // *.go
+		fmt.Println(commandLineFiles(os.Args[1:]))
+		//[commandLineTest.go cryptoTest.go dsTest.go fileTest.go goroutineTest.go ioTest.
+		//go jsonTest.go logTest.go main.go mem.go netTest.go panicTest.go printlnTest.go
+		//randomTest.go regexpTest.go sortTest.go stringTest.go test.go timeTest.go typeTe
+		//st.go xmlTest.go]
+	}
+}
+
+// file globbing
+//例如将 *.txt, 替换成匹配的文件  README.txt, INSTALL.txt 等等..
+func commandLineFiles(files []string) []string {
+	if runtime.GOOS == "windows" { //unix平台会自动glob,windows需要自己处理
+		args := make([]string, 0, len(files))
+		for _, name := range files {
+			if matches, err := filepath.Glob(name); err != nil {
+				args = append(args, name) // Invalid pattern
+			} else if matches != nil { // At least one match
+				args = append(args, matches...)
+			}
+		}
+		return args
+	}
+	return files
 }

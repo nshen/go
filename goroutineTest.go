@@ -9,6 +9,18 @@ import (
 )
 
 //A receive from an unbuffered channel happens before the send on that channel completes.
+
+//make(chan Type)                synchronous 同步 ,会阻塞,直到有发送也有接收
+//make(chan Type, capacity)		asynchronous异步
+
+//channel两条原则,
+//1只关闭那些以后需要检测是否被关闭的channel (e.g., using a for … range loop, a select, or a checked receive using the <- operator)
+//2在sending那边关闭channel
+
+//常见模式
+// 1. pipeline filter/filter.go
+// 2. 多个独立不相关的job需要执行
+
 func goroutineTest() {
 
 	newDivider("goroutineTest.go")

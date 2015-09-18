@@ -13,7 +13,11 @@ import (
 )
 
 func init() {
-	//	fmt.Println("main init()")
+	//每个package都可以定义一个init函数,
+	//init函数无需调用,自动执行
+	//init函数在main.main()之前执行
+
+	fmt.Println("main init()")
 }
 
 func env() {
@@ -44,6 +48,7 @@ func env() {
 }
 
 func main() {
+
 	who := "World!"
 	if len(os.Args) == 1 {
 
@@ -71,6 +76,7 @@ func main() {
 
 	//	<-mu
 
+	funcTest()
 	//	cryptoTest()
 	//	randomTest()
 	//	printlnTest()
@@ -80,7 +86,7 @@ func main() {
 	//	timeTest() //时间相关
 	//	goroutineTest()
 	//	panicTest() //错误处理
-	typeTest() //数据类型
+	//	typeTest() //数据类型
 	//	goTest() //未整理
 	//	stringTest() //字符串
 	//	netTest() //网络相关

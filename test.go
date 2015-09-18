@@ -7,8 +7,6 @@ import (
 
 func goTest() {
 
-	//	testArgs(1, 2, 3, 4, 5)
-
 	//	testInterface()
 	expandSlice() //slice内存分配的一个坑
 	sliceShrink() //收缩slice
@@ -59,14 +57,6 @@ func sliceShrink() {
 	copy(s, mySlice)
 
 	fmt.Println(s, len(s), cap(s))
-}
-
-func testArgs(n ...int) {
-	fmt.Println("-----testArgs------")
-	//n是一个slice
-	for i, v := range n {
-		fmt.Println(i, v)
-	}
 }
 
 type Queue struct {

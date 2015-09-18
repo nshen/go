@@ -47,7 +47,7 @@ func netTest() {
 	http.HandleFunc("/ws", upgradeHandler)
 
 	//http://localhost:8080/hello?url_long=111&url_long=222
-	http.HandleFunc("/hello", sayHello)
+	http.HandleFunc("/hello", logPanics(sayHello))
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/upload", uploadFunc)
 	http.HandleFunc("/cookie", cookieTest)
@@ -57,6 +57,19 @@ func netTest() {
 	if err != nil {
 		log.Fatal("listenAndServer", err)
 
+	}
+}
+
+//wrapper func
+//把panic提前recover了,避免panic传到main函数中服务器被关闭
+func logPanics(function func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		defer func() {
+			if x := recover(); x != nil {
+				log.Printf("[%v] caught panic: %v", request.RemoteAddr, x)
+			}
+		}()
+		function(writer, request)
 	}
 }
 
